@@ -1,13 +1,24 @@
 name: Terraform Deployment to Azure
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      env:
+        required: false
+        default: 'DEV'
+      
 
 jobs:
   terraform:
     name: Deploy Terraform
     runs-on: ubuntu-latest
-    environment: 'Sandbox'
-
+    environment: ${{ github.event.inputs.env }}
+    continue-on-error: true
+    
     steps:
     - name: Checkout code
       # https://github.com/actions/checkout
@@ -36,4 +47,16 @@ jobs:
       run: terraform init
 
     - name: Terraform Plan
-      run: terraform plan -out=tfplan
+      # https://spacelift.io/blog/terraform-tfvars
+      run: terraform plan -var-file="${{ github.event.inputs.env }}.tfvars"
+      env:
+        # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    
+    - name: Approve and apply
+      if: ${{ github.event_name == 'push' }}
+      run: terraform apply -auto-approve -var-file="${{ github.event.inputs.env }}.tfvars"
+      env:
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
