@@ -41,6 +41,7 @@ jobs:
         azcliversion: latest
         inlineScript: |
           az account show
+      continue-on-error: true
 
     - name: Initialize Terraform
       run: terraform init
