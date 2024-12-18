@@ -10,8 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        required: false
+        required: true
         default: 'DEV'
+        type: choice
+        options:
+          - DEV
+          - Test
+          - Prod
       
 jobs:
   terraform:
