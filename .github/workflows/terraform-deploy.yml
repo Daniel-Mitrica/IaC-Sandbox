@@ -21,8 +21,16 @@ jobs:
     - name: Checkout code
       # https://github.com/actions/checkout
       uses: actions/checkout@v4
-    - name: Debug
+      
+    - name: Debug-pwd
       run: pwd
+
+    - name: Debug-ls
+      run: ls -a
+
+    - name: Debug-cat
+      run: cat DEV.tfvars
+      
     - name: Set up Terraform
       # https://github.com/hashicorp/setup-terraform
       uses: hashicorp/setup-terraform@v3
